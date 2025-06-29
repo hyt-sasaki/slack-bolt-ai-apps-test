@@ -21,6 +21,6 @@ jobs:
       - name: Setup mise and install dependencies
         uses: jdx/mise-action@v2
         with:
-          version: latest
+          version: 2025.6.8
           install: true
           cache: true
