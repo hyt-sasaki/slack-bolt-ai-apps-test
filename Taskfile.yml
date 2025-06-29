@@ -1,0 +1,145 @@
+version: '3'
+
+tasks:
+  setup:
+    desc: "開発環境をセットアップ"
+    cmds:
+      - echo "🔧 開発環境をセットアップ中..."
+      - ./setup.sh
+
+  install:
+    desc: "依存関係をインストール (uv使用)"
+    cmds:
+      - echo "📦 uv で依存関係をインストール中..."
+      - uv sync
+
+  install-dev:
+    desc: "開発用依存関係をインストール"
+    cmds:
+      - echo "📦 開発用依存関係をインストール中..."
+      - uv sync --extra dev
+
+  test:
+    desc: "テストを実行"
+    cmds:
+      - echo "🧪 テストを実行中..."
+      - uv run pytest tests/ -v
+
+  test-coverage:
+    desc: "カバレッジ付きテストを実行"
+    cmds:
+      - echo "🧪 カバレッジ付きテストを実行中..."
+      - uv run pytest tests/ --cov=app --cov=listeners --cov-report=html
+
+  lint:
+    desc: "コードをリント"
+    cmds:
+      - echo "🔍 コードをリント中..."
+      - uv run ruff check app/ listeners/ main.py
+      - uv run mypy app/ listeners/ main.py
+
+  format:
+    desc: "コードをフォーマット"
+    cmds:
+      - echo "✨ コードをフォーマット中..."
+      - uv run ruff format app/ listeners/ main.py tests/
+
+  format-check:
+    desc: "コードフォーマットをチェック"
+    cmds:
+      - echo "🔍 コードフォーマットをチェック中..."
+      - uv run ruff format --check app/ listeners/ main.py tests/
+
+  run:
+    desc: "Slack AI チャットボットを起動"
+    cmds:
+      - echo "🚀 Slack AI チャットボットを起動中..."
+      - uv run python main.py
+
+  deploy:
+    desc: "Cloud Run にデプロイ"
+    cmds:
+      - echo "☁️  Cloud Run にデプロイ中..."
+      - ./deploy.sh
+
+  clean:
+    desc: "ビルド成果物をクリーンアップ"
+    cmds:
+      - echo "🧹 クリーンアップ中..."
+      - find . -type d -name "__pycache__" -exec rm -rf {} +
+      - find . -type f -name "*.pyc" -delete
+      - rm -rf .pytest_cache/
+      - rm -rf htmlcov/
+      - rm -rf .coverage
+
+  dev:
+    desc: "ホットリロード付き開発サーバーを起動"
+    cmds:
+      - echo "🔥 ホットリロード付き開発サーバーを起動中..."
+      - echo "注意: watchdog が必要です (uv add watchdog)"
+      - |
+        uv run python -c "
+        from watchdog.observers import Observer
+        from watchdog.events import FileSystemEventHandler
+        import subprocess
+        import time
+        import os
+
+        class RestartHandler(FileSystemEventHandler):
+            def __init__(self):
+                self.process = None
+                self.restart()
+            
+            def on_modified(self, event):
+                if event.src_path.endswith('.py'):
+                    self.restart()
+            
+            def restart(self):
+                if self.process:
+                    self.process.terminate()
+                self.process = subprocess.Popen(['uv', 'run', 'python', 'main.py'])
+
+        handler = RestartHandler()
+        observer = Observer()
+        observer.schedule(handler, '.', recursive=True)
+        observer.start()
+        
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            observer.stop()
+            handler.process.terminate()
+        
+        observer.join()
+        "
+
+  validate:
+    desc: "設定を検証"
+    cmds:
+      - echo "🔍 設定を検証中..."
+      - uv run python validate_config.py
+
+  help:
+    desc: "利用可能なコマンドを表示"
+    cmds:
+      - echo "利用可能なコマンド:"
+      - echo "  setup          - 開発環境のセットアップ"
+      - echo "  install        - uv で依存関係をインストール"
+      - echo "  install-dev    - 開発用依存関係をインストール"
+      - echo "  test          - テストを実行"
+      - echo "  test-coverage - カバレッジ付きテストを実行"
+      - echo "  lint          - コードリント"
+      - echo "  format        - コードフォーマット"
+      - echo "  format-check  - コードフォーマットをチェック"
+      - echo "  run           - アプリケーションを起動"
+      - echo "  dev           - ホットリロード付き開発サーバーを起動"
+      - echo "  deploy        - Cloud Run にデプロイ"
+      - echo "  clean         - ビルド成果物をクリーンアップ"
+      - echo "  validate      - 設定を検証"
+      - echo "  help          - このヘルプメッセージを表示"
+
+  default:
+    desc: "デフォルトタスク (ヘルプを表示)"
+    cmds:
+      - task: help

@@ -1,0 +1,50 @@
+{
+  "display_information": {
+    "name": "AI Chatbot",
+    "description": "Google Gemini を使った AI チャットボット",
+    "background_color": "#4A154B",
+    "long_description": "SlackBolt for Python と Google の Gemini モデル (VertexAI) で構築された AI チャットボットです。\n\n機能:\n- 自然言語での会話\n- ダイレクトメッセージ対応\n- チャンネルでのメンション対応\n- Google Gemini AI による応答"
+  },
+  "features": {
+    "app_home": {
+      "home_tab_enabled": false,
+      "messages_tab_enabled": true,
+      "messages_tab_read_only_enabled": false
+    },
+    "bot_user": {
+      "display_name": "AI Chatbot",
+      "always_online": true
+    },
+    "assistant_view": {
+      "assistant_description": "こんにちは！私は Google Gemini を使った AI アシスタントです。何でもお気軽にお聞きください！",
+      "suggested_prompts": []
+    }
+  },
+  "oauth_config": {
+    "scopes": {
+      "bot": [
+        "assistant:write",
+        "channels:join",
+        "im:history",
+        "channels:history",
+        "groups:history",
+        "chat:write"
+      ]
+    }
+  },
+  "settings": {
+    "event_subscriptions": {
+      "bot_events": [
+        "assistant_thread_context_changed",
+        "assistant_thread_started",
+        "message.im"
+      ]
+    },
+    "interactivity": {
+      "is_enabled": false
+    },
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": true,
+    "token_rotation_enabled": false
+  }
+}
