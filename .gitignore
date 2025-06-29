@@ -126,3 +126,6 @@ service-account-key.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Deployment tracking
+.last_deploy_manifest_hash

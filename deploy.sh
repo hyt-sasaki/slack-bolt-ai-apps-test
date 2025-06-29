@@ -13,6 +13,20 @@ echo "Project: ${PROJECT_ID}"
 echo "Service: ${SERVICE_NAME}"
 echo "Region: ${REGION}"
 
+# Check if manifest.json has changed since last deployment
+MANIFEST_CHANGED=false
+if [ -f .last_deploy_manifest_hash ]; then
+    LAST_HASH=$(cat .last_deploy_manifest_hash)
+    CURRENT_HASH=$(sha256sum manifest.json | cut -d' ' -f1)
+    if [ "$LAST_HASH" != "$CURRENT_HASH" ]; then
+        MANIFEST_CHANGED=true
+        echo "📋 manifest.json has changed since last deployment"
+    fi
+else
+    MANIFEST_CHANGED=true
+    echo "📋 First deployment or no previous manifest hash found"
+fi
+
 # Build and push the Docker image
 echo "📦 Building Docker image..."
 gcloud builds submit --tag ${IMAGE_NAME} .
@@ -42,6 +56,37 @@ if [ $? -eq 0 ]; then
     echo "📡 Getting service URL..."
     SERVICE_URL=$(gcloud run services describe ${SERVICE_NAME} --region=${REGION} --format='value(status.url)')
     echo "🌐 Service URL: ${SERVICE_URL}"
+    
+    # Save current manifest hash for future deployments
+    sha256sum manifest.json | cut -d' ' -f1 > .last_deploy_manifest_hash
+    
+    # If manifest changed, prompt to update Slack app
+    if [ "$MANIFEST_CHANGED" = true ]; then
+        echo ""
+        echo "🔄 manifest.json has changed. Slack Appの更新が必要です:"
+        echo "1. 以下のコマンドでSlack Appを更新してください:"
+        echo "   slack app update --manifest manifest.json"
+        echo "2. または、Slack App管理画面で手動更新してください"
+        echo ""
+        
+        # Ask if user wants to update the Slack app automatically
+        read -p "Slack Appを自動更新しますか? (y/N): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            echo "🔄 Slack Appを更新中..."
+            if command -v slack &> /dev/null; then
+                slack app update --manifest manifest.json
+                if [ $? -eq 0 ]; then
+                    echo "✅ Slack App updated successfully!"
+                else
+                    echo "❌ Failed to update Slack App. Please update manually."
+                fi
+            else
+                echo "❌ slack CLI not found. Please install slack CLI or update manually."
+            fi
+        fi
+    fi
+    
     echo ""
     echo "📝 Next steps:"
     echo "1. Update your Slack app's Request URL to: ${SERVICE_URL}/slack/events"

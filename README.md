@@ -135,26 +135,26 @@ slack-bolt-ai-apps-test/
 
 ```bash
 # 全テストを実行
-pytest
+task test
 
 # カバレッジ付きで実行
-pytest --cov=app --cov=listeners
+task test-coverage
 
-# 特定のテストファイルを実行
-pytest tests/test_gemini_client.py
+# 特定のテストファイルを実行（uvを使用）
+uv run pytest tests/test_gemini_client.py
 ```
 
 ### コード品質
 
 ```bash
 # コードフォーマット
-ruff format .
+task format
 
 # コードリント
-ruff check .
+task lint
 
-# 型チェック
-mypy .
+# 設定検証
+task validate
 ```
 
 ## デプロイ
@@ -190,6 +190,37 @@ mise use "aqua:slack.com/slack-cli@3.4.0"
 
 # ツールを更新
 mise upgrade
+```
+
+### タスクランナー（Task）の使用
+
+プロジェクトでは [Task](https://taskfile.dev/) をタスクランナーとして使用しています：
+
+```bash
+# 利用可能なタスクを表示
+task help
+
+# 開発環境のセットアップ
+task setup
+
+# 依存関係のインストール
+task install
+
+# アプリケーションの実行
+task run
+
+# テストの実行
+task test
+
+# コードフォーマットとリント
+task format
+task lint
+
+# Cloud Runへのデプロイ
+task deploy
+
+# ホットリロード付き開発サーバー
+task dev
 ```
 
 ## 使用方法
