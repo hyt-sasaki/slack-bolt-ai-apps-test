@@ -1,10 +1,6 @@
 name: Copilot Setup Steps
 
 on:
-  workflow_call:
-    secrets:
-      COPILOT_GITHUB_TOKEN:
-        required: true
   workflow_dispatch:
   push:
     paths:
