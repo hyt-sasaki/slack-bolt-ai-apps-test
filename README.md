@@ -1,178 +1,172 @@
-# Slack AI Chatbot with Gemini on VertexAI
+# Slack AI チャットボット with Google Gemini on VertexAI
 
-A Slack AI chatbot prototype built with Slack Bolt for Python and Google's Gemini model on VertexAI.
+Slack Bolt for Python と Google の Gemini モデル (VertexAI) を使用した Slack AI チャットボットプロトタイプです。
 
-## Features
+## 機能
 
-- 🤖 AI-powered conversations using Google Gemini
-- 💬 Direct message support
-- 📢 Channel mention responses
-- 🚀 Cloud Run deployment ready
-- 🛠️ Modern Python tooling with mise and uv
-- 🔧 Slack CLI 3.x integration
+- 🤖 Google Gemini を使った AI 会話機能
+- 💬 ダイレクトメッセージ対応
+- 📢 チャンネルでのメンション対応
+- 🚀 Cloud Run デプロイ対応
+- 🛠️ mise と uv を使ったモダンな Python ツール構成
+- 🔧 Slack CLI 3.x 統合
+- 🎯 Slack Assistant 機能の活用
 
-## Architecture
+## アーキテクチャ
 
-- **Framework**: Slack Bolt for Python
-- **AI Model**: Google Gemini on VertexAI
-- **Deployment**: Google Cloud Run
-- **Tool Management**: mise
-- **Package Management**: uv
-- **Slack Management**: Slack CLI 3.x
+- **フレームワーク**: Slack Bolt for Python
+- **AI モデル**: Google Gemini on VertexAI
+- **デプロイ**: Google Cloud Run
+- **ツール管理**: mise
+- **パッケージ管理**: uv
+- **Slack 管理**: Slack CLI 3.x
 
-## Prerequisites
+## 前提条件
 
 - Python 3.8+
-- Google Cloud Platform account
-- Slack workspace with admin permissions
-- mise (optional, for tool management)
+- Google Cloud Platform アカウント
+- 管理者権限のある Slack ワークスペース
+- mise（オプション、ツール管理用）
 
-## Quick Start
+## クイックスタート
 
-### 1. Environment Setup
+### 1. 環境セットアップ
 
 ```bash
-# Clone the repository
+# リポジトリをクローン
 git clone <repository-url>
 cd slack-bolt-ai-apps-test
 
-# Run setup script (installs tools and dependencies)
+# セットアップスクリプトを実行（ツールと依存関係をインストール）
 ./setup.sh
 
-# Or manual setup:
+# または手動セットアップ:
 pip install -e ".[dev]"
 cp .env.example .env
 ```
 
-### 2. Configure Environment Variables
+### 2. 環境変数の設定
 
-Edit `.env` file with your actual values:
+`.env` ファイルを実際の値で編集:
 
 ```bash
-# Slack Configuration
+# Slack 設定
 SLACK_BOT_TOKEN=xoxb-your-slack-bot-token
 SLACK_APP_TOKEN=xapp-your-slack-app-token
 SLACK_SIGNING_SECRET=your-slack-signing-secret
 
-# Google Cloud Configuration
-GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account-key.json
+# Google Cloud 設定
 GCP_PROJECT_ID=your-gcp-project-id
 GCP_REGION=us-central1
 
-# Vertex AI Configuration
+# Vertex AI 設定
 VERTEX_AI_LOCATION=us-central1
-VERTEX_AI_MODEL=gemini-1.5-flash
+VERTEX_AI_MODEL=gemini-2.5-flash
 ```
 
-### 3. Google Cloud Setup
+### 3. Google Cloud セットアップ
 
 ```bash
-# Authenticate with Google Cloud
+# Google Cloud での認証
 gcloud auth login
 gcloud config set project YOUR_PROJECT_ID
 
-# Enable required APIs
+# 必要な API を有効化
 gcloud services enable aiplatform.googleapis.com
 gcloud services enable run.googleapis.com
 gcloud services enable cloudbuild.googleapis.com
 
-# Create service account for VertexAI
+# VertexAI 用のサービスアカウントを作成
 gcloud iam service-accounts create slack-ai-chatbot
 gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
     --member="serviceAccount:slack-ai-chatbot@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
     --role="roles/aiplatform.user"
-
-# Download service account key
-gcloud iam service-accounts keys create service-account-key.json \
-    --iam-account=slack-ai-chatbot@YOUR_PROJECT_ID.iam.gserviceaccount.com
 ```
 
-### 4. Slack App Setup
+### 4. Slack アプリセットアップ
 
-Using Slack CLI 3.x:
+Slack CLI 3.x を使用:
 
 ```bash
-# Create new Slack app from manifest
-slack create app --manifest manifest.yaml
+# マニフェストから新しい Slack アプリを作成
+slack create app --manifest manifest.json
 
-# Or create from template
-slack create app --template https://github.com/slack-samples/bolt-python-ai-chatbot
-
-# Install the app to your workspace
+# アプリをワークスペースにインストール
 slack install app
 ```
 
-### 5. Run the Application
+### 5. アプリケーションの実行
 
-For development (Socket Mode):
+開発用（Socket Mode）:
 ```bash
 python main.py
 ```
 
-For production deployment:
+本番デプロイ用:
 ```bash
 ./deploy.sh
 ```
 
-## Development
+## 開発
 
-### Project Structure
+### プロジェクト構造
 
 ```
 slack-bolt-ai-apps-test/
 ├── app/
 │   ├── __init__.py
-│   └── gemini_client.py      # VertexAI Gemini integration
+│   └── gemini_client.py      # VertexAI Gemini 統合
 ├── listeners/
 │   ├── __init__.py
-│   └── message_listener.py   # Slack event listeners
-├── tests/                    # Test files
-├── main.py                   # Main application entry point
-├── manifest.yaml             # Slack app manifest
-├── Dockerfile               # Container configuration
-├── deploy.sh                # Cloud Run deployment script
-├── setup.sh                 # Development environment setup
-├── pyproject.toml           # Python project configuration
-├── .mise.toml               # Tool configuration
-└── .env.example             # Environment template
+│   ├── assistant.py          # Slack Assistant リスナー
+│   └── message_listener.py   # 従来のメッセージリスナー
+├── tests/                    # テストファイル
+├── main.py                   # メインアプリケーション
+├── manifest.json             # Slack アプリマニフェスト
+├── Dockerfile               # コンテナ設定
+├── deploy.sh                # Cloud Run デプロイスクリプト
+├── setup.sh                 # 開発環境セットアップ
+├── pyproject.toml           # Python プロジェクト設定
+├── .mise.toml               # ツール設定
+└── .env.example             # 環境変数テンプレート
 ```
 
-### Running Tests
+### テストの実行
 
 ```bash
-# Run all tests
+# 全テストを実行
 pytest
 
-# Run with coverage
+# カバレッジ付きで実行
 pytest --cov=app --cov=listeners
 
-# Run specific test file
+# 特定のテストファイルを実行
 pytest tests/test_gemini_client.py
 ```
 
-### Code Quality
+### コード品質
 
 ```bash
-# Format code
-black .
+# コードフォーマット
+ruff format .
 
-# Lint code
-flake8
+# コードリント
+ruff check .
 
-# Type checking
+# 型チェック
 mypy .
 ```
 
-## Deployment
+## デプロイ
 
-### Cloud Run Deployment
+### Cloud Run デプロイ
 
-1. **Build and Deploy**:
+1. **ビルドとデプロイ**:
    ```bash
    ./deploy.sh
    ```
 
-2. **Set Environment Variables**:
+2. **環境変数の設定**:
    ```bash
    gcloud run services update slack-ai-chatbot \
      --region=us-central1 \
@@ -181,105 +175,109 @@ mypy .
      --set-env-vars="GCP_PROJECT_ID=your-project-id"
    ```
 
-3. **Update Slack App Configuration**:
-   - Set Request URL to: `https://your-service-url.run.app/slack/events`
-   - Disable Socket Mode for production
+3. **Slack アプリ設定の更新**:
+   - リクエスト URL を設定: `https://your-service-url.run.app/slack/events`
+   - 本番環境では Socket Mode を無効化
 
-### Using mise for Tool Management
+### mise でのツール管理
 
 ```bash
-# Install all tools
+# 全ツールをインストール
 mise install
 
-# Use specific Slack CLI version
+# 特定の Slack CLI バージョンを使用
 mise use "aqua:slack.com/slack-cli@3.4.0"
 
-# Update tools
+# ツールを更新
 mise upgrade
 ```
 
-## Usage
+## 使用方法
 
-### Bot Commands
+### Assistant 機能
 
-- **hello** - Get a greeting message
-- **help** - Show help information
-- **ping** - Check if bot is alive
+このボットは Slack の新しい Assistant 機能を使用しています：
 
-### Interaction Modes
+1. **アシスタントスレッドの開始**: ボットとの新しい会話を開始
+2. **提案プロンプト**: よく使われる質問の提案
+3. **コンテキスト保持**: 会話の文脈を理解した応答
 
-1. **Direct Messages**: Send any message directly to the bot
-2. **Channel Mentions**: Mention the bot in channels with `@botname your message`
+### インタラクションモード
 
-### Example Conversations
+1. **アシスタントスレッド**: Slack の Assistant 機能を使った会話
+2. **ダイレクトメッセージ**: ボットに直接メッセージを送信
+3. **チャンネルメンション**: チャンネルで `@botname メッセージ` でメンション
+
+### 会話例
 
 ```
-User: @ai-chatbot What is Python?
-Bot: Python is a high-level, interpreted programming language...
+ユーザー: プログラミングについて教えてください
+ボット: プログラミングは、コンピュータに実行させたい処理を...
 
-User: Help me write a function to calculate fibonacci
-Bot: Here's a Python function to calculate Fibonacci numbers...
+ユーザー: Pythonの関数について詳しく説明してください
+ボット: Pythonの関数は、特定の処理をまとめて名前を付けたもので...
 ```
 
-## Configuration
+## 設定
 
-### Environment Variables
+### 環境変数
 
-| Variable | Description | Default |
+| 変数 | 説明 | デフォルト |
 |----------|-------------|---------|
-| `SLACK_BOT_TOKEN` | Bot user OAuth token | Required |
-| `SLACK_APP_TOKEN` | App-level token for Socket Mode | Required for dev |
-| `SLACK_SIGNING_SECRET` | Slack app signing secret | Required |
-| `GCP_PROJECT_ID` | Google Cloud project ID | Required |
-| `VERTEX_AI_LOCATION` | VertexAI region | `us-central1` |
-| `VERTEX_AI_MODEL` | Gemini model name | `gemini-1.5-flash` |
-| `PORT` | Application port | `3000` |
-| `LOG_LEVEL` | Logging level | `INFO` |
+| `SLACK_BOT_TOKEN` | ボットユーザーOAuthトークン | 必須 |
+| `SLACK_APP_TOKEN` | Socket Mode用アプリレベルトークン | 開発時必須 |
+| `SLACK_SIGNING_SECRET` | Slack アプリ署名シークレット | 必須 |
+| `GCP_PROJECT_ID` | Google Cloud プロジェクト ID | 必須 |
+| `VERTEX_AI_LOCATION` | VertexAI リージョン | `us-central1` |
+| `VERTEX_AI_MODEL` | Gemini モデル名 | `gemini-2.5-flash` |
+| `PORT` | アプリケーションポート | `3000` |
+| `LOG_LEVEL` | ログレベル | `INFO` |
 
-### Slack App Manifest
+### Slack アプリマニフェスト
 
-The `manifest.yaml` file configures:
-- Bot permissions and scopes
-- Event subscriptions
-- OAuth settings
-- App display information
+`manifest.json` ファイルで以下を設定:
+- ボット権限とスコープ
+- イベントサブスクリプション
+- OAuth 設定
+- アプリ表示情報
+- Assistant 機能設定
 
-## Troubleshooting
+## トラブルシューティング
 
-### Common Issues
+### よくある問題
 
-1. **Import Error for Google Cloud**:
+1. **Google Cloud のインポートエラー**:
    ```bash
    pip install google-cloud-aiplatform
    ```
 
-2. **Authentication Issues**:
+2. **認証の問題**:
    ```bash
    gcloud auth application-default login
    ```
 
-3. **Slack Token Issues**:
-   - Verify tokens in Slack app settings
-   - Check token permissions and scopes
+3. **Slack トークンの問題**:
+   - Slack アプリ設定でトークンを確認
+   - トークンの権限とスコープを確認
 
-### Logs
+### ログ
 
-View application logs:
+アプリケーションログの確認:
 ```bash
-# Local development
+# ローカル開発
 python main.py
 
 # Cloud Run
 gcloud logs read --service=slack-ai-chatbot
 ```
 
-## Contributing
+## コントリビューション
 
-1. Fork the repository
-2. Create a feature branch
-3. Make changes with tests
-4. Submit a pull request
+1. リポジトリをフォーク
+2. フィーチャーブランチを作成
+3. テスト付きで変更を作成
+4. プルリクエストを送信
 
-## License
+## ライセンス
 
-MIT License - see LICENSE file for details.
+MIT License - 詳細は LICENSE ファイルをご覧ください。

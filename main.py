@@ -1,119 +1,75 @@
 """
 Slack AI Chatbot using Gemini on VertexAI
 
-This is the main application file that sets up the Slack Bolt app
-and integrates with Gemini on VertexAI for AI-powered conversations.
+Google Gemini と VertexAI を使用した Slack AI チャットボットのメインアプリケーションファイルです。
 """
 
 import os
 import logging
-from typing import Dict, Any
 
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from dotenv import load_dotenv
 
 from app.gemini_client import GeminiClient
-from listeners.message_listener import register_message_listeners
+from listeners import register_listeners
 
-# Load environment variables
+# 環境変数を読み込み
 load_dotenv()
 
-# Configure logging
+# ロギング設定
 logging.basicConfig(
     level=getattr(logging, os.getenv("LOG_LEVEL", "INFO")),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
-# Initialize Slack Bolt app
+# Slack Bolt アプリを初期化
 app = App(
     token=os.environ.get("SLACK_BOT_TOKEN"),
     signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
 )
 
-# Initialize Gemini client
+# Gemini クライアントを初期化
 gemini_client = GeminiClient(
     project_id=os.environ.get("GCP_PROJECT_ID"),
     location=os.environ.get("VERTEX_AI_LOCATION", "us-central1"),
-    model_name=os.environ.get("VERTEX_AI_MODEL", "gemini-1.5-flash")
+    model_name=os.environ.get("VERTEX_AI_MODEL", "gemini-2.5-flash")
 )
 
-# Store gemini client in app context for access in listeners
+# Gemini クライアントをアプリコンテキストに保存してリスナーでアクセス可能にする
 app.client.gemini = gemini_client
 
-# Register message listeners
-register_message_listeners(app)
-
-@app.event("app_mention")
-def handle_app_mention(event: Dict[str, Any], say, logger):
-    """Handle app mentions in channels"""
-    try:
-        user_message = event["text"]
-        # Remove the bot mention from the message
-        user_message = user_message.split(">", 1)[-1].strip()
-        
-        if not user_message:
-            say("Hello! How can I help you today?")
-            return
-        
-        # Generate response using Gemini
-        response = gemini_client.generate_response(user_message)
-        say(response)
-        
-    except Exception as e:
-        logger.error(f"Error handling app mention: {e}")
-        say("Sorry, I encountered an error processing your request.")
-
-@app.event("message")
-def handle_direct_message(event: Dict[str, Any], say, logger):
-    """Handle direct messages to the bot"""
-    # Only respond to direct messages (not channel messages)
-    if event.get("channel_type") != "im":
-        return
-    
-    try:
-        user_message = event.get("text", "")
-        
-        if not user_message:
-            say("Hello! How can I help you today?")
-            return
-        
-        # Generate response using Gemini
-        response = gemini_client.generate_response(user_message)
-        say(response)
-        
-    except Exception as e:
-        logger.error(f"Error handling direct message: {e}")
-        say("Sorry, I encountered an error processing your request.")
+# リスナーを登録
+register_listeners(app)
 
 @app.route("/health")
 def health_check():
-    """Health check endpoint for Cloud Run"""
+    """Cloud Run 用のヘルスチェックエンドポイント"""
     return {"status": "healthy", "gemini_available": gemini_client.is_available()}
 
 def main():
-    """Main function to start the Slack app"""
+    """Slack アプリを開始するメイン関数"""
     try:
-        # Check if Gemini client is available
+        # Gemini クライアントが利用可能かチェック
         if not gemini_client.is_available():
-            logger.warning("Gemini client is not available. Check your Google Cloud configuration.")
+            logger.warning("Gemini クライアントが利用できません。Google Cloud の設定を確認してください。")
         
-        # Start the app using Socket Mode for development
+        # 開発用に Socket Mode でアプリを開始
         if os.environ.get("SLACK_APP_TOKEN"):
             handler = SocketModeHandler(app, os.environ["SLACK_APP_TOKEN"])
-            logger.info("Starting Slack app in Socket Mode...")
+            logger.info("Socket Mode で Slack アプリを開始しています...")
             handler.start()
         else:
-            # For production deployment (e.g., Cloud Run)
+            # 本番デプロイ用 (例: Cloud Run)
             port = int(os.environ.get("PORT", 3000))
-            logger.info(f"Starting Slack app on port {port}...")
+            logger.info(f"ポート {port} で Slack アプリを開始しています...")
             app.start(port=port)
             
     except KeyboardInterrupt:
-        logger.info("App stopped by user")
+        logger.info("ユーザーによってアプリが停止されました")
     except Exception as e:
-        logger.error(f"Error starting app: {e}")
+        logger.error(f"アプリ開始エラー: {e}")
         raise
 
 if __name__ == "__main__":

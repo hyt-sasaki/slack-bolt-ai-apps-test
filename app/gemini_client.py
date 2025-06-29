@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 class GeminiClient:
     """Client for interacting with Gemini on VertexAI"""
     
-    def __init__(self, project_id: str, location: str, model_name: str = "gemini-1.5-flash"):
+    def __init__(self, project_id: str, location: str, model_name: str = "gemini-2.5-flash"):
         """
         Initialize the Gemini client
         

@@ -2,55 +2,55 @@
 
 # Development setup
 setup:
-	@echo "🔧 Setting up development environment..."
+	@echo "🔧 開発環境をセットアップ中..."
 	./setup.sh
 
 # Install dependencies
 install:
-	@echo "📦 Installing dependencies..."
+	@echo "📦 依存関係をインストール中..."
 	pip install -r requirements.txt
 	pip install -r requirements-dev.txt
 
 install-uv:
-	@echo "📦 Installing dependencies with uv..."
+	@echo "📦 uv で依存関係をインストール中..."
 	uv sync
 
 # Run tests
 test:
-	@echo "🧪 Running tests..."
+	@echo "🧪 テストを実行中..."
 	pytest tests/ -v
 
 test-coverage:
-	@echo "🧪 Running tests with coverage..."
+	@echo "🧪 カバレッジ付きテストを実行中..."
 	pytest tests/ --cov=app --cov=listeners --cov-report=html
 
 # Linting and formatting
 lint:
-	@echo "🔍 Linting code..."
-	flake8 app/ listeners/ main.py
+	@echo "🔍 コードをリント中..."
+	ruff check app/ listeners/ main.py
 	mypy app/ listeners/ main.py
 
 format:
-	@echo "✨ Formatting code..."
-	black app/ listeners/ main.py tests/
+	@echo "✨ コードをフォーマット中..."
+	ruff format app/ listeners/ main.py tests/
 
 format-check:
-	@echo "🔍 Checking code formatting..."
-	black --check app/ listeners/ main.py tests/
+	@echo "🔍 コードフォーマットをチェック中..."
+	ruff format --check app/ listeners/ main.py tests/
 
 # Run the application
 run:
-	@echo "🚀 Starting Slack AI Chatbot..."
+	@echo "🚀 Slack AI チャットボットを起動中..."
 	python main.py
 
 # Deploy to Cloud Run
 deploy:
-	@echo "☁️  Deploying to Cloud Run..."
+	@echo "☁️  Cloud Run にデプロイ中..."
 	./deploy.sh
 
 # Clean up
 clean:
-	@echo "🧹 Cleaning up..."
+	@echo "🧹 クリーンアップ中..."
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 	rm -rf .pytest_cache/
@@ -59,8 +59,8 @@ clean:
 
 # Development with hot reload (requires additional setup)
 dev:
-	@echo "🔥 Starting development server with hot reload..."
-	@echo "Note: This requires watchdog (pip install watchdog)"
+	@echo "🔥 ホットリロード付き開発サーバーを起動中..."
+	@echo "注意: watchdog が必要です (pip install watchdog)"
 	python -c "from watchdog.observers import Observer; from watchdog.events import FileSystemEventHandler; import subprocess; import time; import os; \
 	class RestartHandler(FileSystemEventHandler): \
 		def __init__(self): self.process = None; self.restart() \
@@ -78,17 +78,17 @@ dev:
 
 # Help
 help:
-	@echo "Available commands:"
-	@echo "  setup          - Set up development environment"
-	@echo "  install        - Install dependencies with pip"
-	@echo "  install-uv     - Install dependencies with uv"
-	@echo "  test          - Run tests"
-	@echo "  test-coverage - Run tests with coverage"
-	@echo "  lint          - Lint code"
-	@echo "  format        - Format code"
-	@echo "  format-check  - Check code formatting"
-	@echo "  run           - Start the application"
-	@echo "  dev           - Start development server with hot reload"
-	@echo "  deploy        - Deploy to Cloud Run"
-	@echo "  clean         - Clean up build artifacts"
-	@echo "  help          - Show this help message"
+	@echo "利用可能なコマンド:"
+	@echo "  setup          - 開発環境のセットアップ"
+	@echo "  install        - pip で依存関係をインストール"
+	@echo "  install-uv     - uv で依存関係をインストール"
+	@echo "  test          - テストを実行"
+	@echo "  test-coverage - カバレッジ付きテストを実行"
+	@echo "  lint          - コードリント"
+	@echo "  format        - コードフォーマット"
+	@echo "  format-check  - コードフォーマットをチェック"
+	@echo "  run           - アプリケーションを起動"
+	@echo "  dev           - ホットリロード付き開発サーバーを起動"
+	@echo "  deploy        - Cloud Run にデプロイ"
+	@echo "  clean         - ビルド成果物をクリーンアップ"
+	@echo "  help          - このヘルプメッセージを表示"

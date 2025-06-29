@@ -2,12 +2,11 @@
 
 [tools]
 python = "3.12"
-uv = "latest"
-gcloud = "latest"
+uv = "0.7.16"
+gcloud = "528.0.0"
 
 # Aqua packages for additional tools
 "aqua:slack.com/slack-cli" = "3.4.0"
 
 [env]
 PYTHONPATH = "."
-GOOGLE_APPLICATION_CREDENTIALS = "./service-account-key.json"
