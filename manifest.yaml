@@ -1,0 +1,50 @@
+display_information:
+  name: AI Chatbot
+  description: An AI-powered chatbot using Gemini on VertexAI
+  background_color: "#4A154B"
+  long_description: |
+    This is an AI-powered chatbot built with Slack Bolt for Python and Google's Gemini model on VertexAI.
+    
+    Features:
+    - Natural language conversations
+    - Direct message support
+    - Channel mentions
+    - Powered by Google Gemini AI
+
+features:
+  app_home:
+    home_tab_enabled: true
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: false
+  bot_user:
+    display_name: AI Chatbot
+    always_online: true
+
+oauth_config:
+  scopes:
+    bot:
+      - app_mentions:read
+      - channels:history
+      - chat:write
+      - chat:write.public
+      - im:history
+      - im:read
+      - im:write
+      - users:read
+
+event_subscriptions:
+  request_url: https://your-app-url.run.app/slack/events
+  bot_events:
+    - app_mention
+    - message.channels
+    - message.im
+
+settings:
+  event_subscriptions:
+    request_url: https://your-app-url.run.app/slack/events
+  interactivity:
+    is_enabled: true
+    request_url: https://your-app-url.run.app/slack/events
+  org_deploy_enabled: false
+  socket_mode_enabled: true
+  token_rotation_enabled: false
