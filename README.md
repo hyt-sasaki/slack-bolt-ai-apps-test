@@ -45,26 +45,7 @@ pip install -e ".[dev]"
 cp .env.example .env
 ```
 
-### 2. 環境変数の設定
-
-`.env` ファイルを実際の値で編集:
-
-```bash
-# Slack 設定
-SLACK_BOT_TOKEN=xoxb-your-slack-bot-token
-SLACK_APP_TOKEN=xapp-your-slack-app-token
-SLACK_SIGNING_SECRET=your-slack-signing-secret
-
-# Google Cloud 設定
-GCP_PROJECT_ID=your-gcp-project-id
-GCP_REGION=us-central1
-
-# Vertex AI 設定
-VERTEX_AI_LOCATION=us-central1
-VERTEX_AI_MODEL=gemini-2.5-flash
-```
-
-### 3. Google Cloud セットアップ
+### 2. Google Cloud セットアップ
 
 ```bash
 # Google Cloud での認証
@@ -83,17 +64,64 @@ gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
     --role="roles/aiplatform.user"
 ```
 
-### 4. Slack アプリセットアップ
+### 3. Slack アプリセットアップ
 
-Slack CLI 3.x を使用:
+**注意**: Slack アプリを作成・インストールしてから、トークンを取得できます。
+
+#### 3.1 新しいプロジェクトの場合
 
 ```bash
-# マニフェストから新しい Slack アプリを作成
-slack create app --manifest manifest.json
+# Slack CLI でログイン
+slack auth login
 
-# アプリをワークスペースにインストール
-slack install app
+# プロジェクトを初期化（既存のプロジェクトがない場合のみ）
+slack project init
+
+# マニフェストからアプリを作成
+slack app link --manifest manifest.json
 ```
+
+#### 3.2 既存プロジェクトの場合
+
+```bash
+# Slack CLI でログイン
+slack auth login
+
+# 既存のアプリをプロジェクトにリンク
+slack app link
+```
+
+#### 3.3 アプリのインストール
+
+```bash
+# アプリをワークスペースにインストール
+slack app install
+```
+
+### 4. 環境変数の設定
+
+Slack アプリの作成・インストール後、Slack アプリ設定ページから取得した値で `.env` ファイルを編集:
+
+```bash
+# Slack 設定（アプリインストール後に取得可能）
+SLACK_BOT_TOKEN=xoxb-your-slack-bot-token
+SLACK_APP_TOKEN=xapp-your-slack-app-token
+SLACK_SIGNING_SECRET=your-slack-signing-secret
+
+# Google Cloud 設定
+GCP_PROJECT_ID=your-gcp-project-id
+GCP_REGION=us-central1
+
+# Vertex AI 設定
+VERTEX_AI_LOCATION=global
+VERTEX_AI_MODEL=gemini-2.5-flash
+```
+
+**トークンの取得方法**:
+- Slack アプリ設定ページ（`https://api.slack.com/apps`）にアクセス
+- OAuth & Permissions ページで `SLACK_BOT_TOKEN` を取得
+- Basic Information ページで `SLACK_SIGNING_SECRET` を取得
+- Socket Mode ページで `SLACK_APP_TOKEN` を取得（開発時のみ必要）
 
 ### 5. アプリケーションの実行
 
