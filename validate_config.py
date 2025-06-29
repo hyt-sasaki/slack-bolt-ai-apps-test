@@ -63,8 +63,8 @@ def check_files() -> List[str]:
     required_files = [
         ("main.py", "Main application file"),
         ("app/gemini_client.py", "Gemini client module"),
-        ("listeners/message_listener.py", "Message listeners module"),
-        ("manifest.yaml", "Slack app manifest"),
+        ("listeners/assistant.py", "Assistant listeners module"),
+        ("manifest.json", "Slack app manifest"),
     ]
     
     for file_path, description in required_files:

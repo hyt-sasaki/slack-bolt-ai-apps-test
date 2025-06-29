@@ -17,6 +17,7 @@ dependencies = [
     "google-cloud-aiplatform>=1.60.0",
     "python-dotenv>=1.0.0",
     "gunicorn>=21.0.0",
+    "requests>=2.31.0",
 ]
 
 [project.optional-dependencies]
