@@ -8,6 +8,7 @@ task = "3.44.0"
 
 # Aqua packages for additional tools
 "aqua:slack.com/slack-cli" = "3.4.0"
+actionlint = "1.7.7"
 
 [env]
 PYTHONPATH = "."
